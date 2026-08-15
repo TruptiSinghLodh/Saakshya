@@ -9,3 +9,4 @@ env/
 .env
 attendence.csv.csv
 reports/
+alerts.txt
