@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Student - Smart Classroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn" data-testid="back-home-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h1><i class="fas fa-user-plus"></i> Register Student</h1>
+            <p>Capture 15 images for accurate recognition</p>
+        </header>
+
+        <main class="register-main">
+            <div class="register-container">
+                <div class="input-section">
+                    <label for="studentName">Student Name</label>
+                    <input type="text" id="studentName" data-testid="student-name-input" placeholder="Enter student full name" />
+                </div>
+
+                <div class="camera-section">
+                    <div class="video-container">
+                        <video id="video" data-testid="camera-video" autoplay></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <div class="capture-overlay" id="captureOverlay"></div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                        <span class="progress-text" id="progressText" data-testid="progress-text">0 / 15 images captured</span>
+                    </div>
+                </div>
+
+                <div class="button-section">
+                    <button id="startCamera" data-testid="start-camera-btn" class="btn btn-primary">
+                        <i class="fas fa-camera"></i> Start Camera
+                    </button>
+                    <button id="captureBtn" data-testid="capture-image-btn" class="btn btn-secondary" disabled>
+                        <i class="fas fa-camera-retro"></i> Capture Image
+                    </button>
+                    <button id="registerBtn" data-testid="register-student-btn" class="btn btn-success" disabled>
+                        <i class="fas fa-save"></i> Register Student
+                    </button>
+                </div>
+
+                <div class="train-section">
+                    <h3>Training Model</h3>
+                    <p>After registering students, train the model for recognition</p>
+                    <button id="trainBtn" data-testid="train-model-btn" class="btn btn-accent">
+                        <i class="fas fa-brain"></i> Train Model
+                    </button>
+                    <div id="trainStatus" data-testid="train-status" class="status-message"></div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3><i class="fas fa-info-circle"></i> Instructions</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Enter student's full name</li>
+                    <li><i class="fas fa-check"></i> Click "Start Camera" to activate webcam</li>
+                    <li><i class="fas fa-check"></i> Click "Capture Image" 15 times (different angles)</li>
+                    <li><i class="fas fa-check"></i> Click "Register Student" to save</li>
+                    <li><i class="fas fa-check"></i> After registering all students, click "Train Model"</li>
+                </ul>
+
+                <div class="registered-students">
+                    <h3><i class="fas fa-users"></i> Registered Students</h3>
+                    <div id="studentsList" data-testid="students-list">Loading...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="alert" id="alert" data-testid="alert-message"></div>
+
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+</body>
+</html>

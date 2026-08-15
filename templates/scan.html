@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Attendance - Smart Classroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn" data-testid="back-home-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h1><i class="fas fa-camera"></i> Mark Attendance</h1>
+            <p>Face recognition with liveness detection</p>
+        </header>
+
+        <main class="scan-main">
+            <div class="scan-container">
+                <div class="camera-section-large">
+                    <div class="video-container-large">
+                        <video id="video" data-testid="scan-video" autoplay></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <div class="scan-overlay" id="scanOverlay">
+                            <div class="scan-line"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="liveness-checks">
+                    <h3>Liveness Verification</h3>
+                    <div class="check-item" id="blinkCheck" data-testid="blink-check">
+                        <i class="fas fa-eye"></i>
+                        <span>Blink Detection: <strong id="blinkCount">0</strong> / 2</span>
+                    </div>
+                    <div class="check-item" id="headCheck" data-testid="head-check">
+                        <i class="fas fa-head-side-virus"></i>
+                        <span>Head Movement: <strong id="headStatus">Not Detected</strong></span>
+                    </div>
+                </div>
+
+                <div class="button-section">
+                    <button id="startScan" data-testid="start-scan-btn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Start Scanning
+                    </button>
+                    <button id="stopScan" data-testid="stop-scan-btn" class="btn btn-danger" disabled>
+                        <i class="fas fa-stop"></i> Stop Scanning
+                    </button>
+                </div>
+
+                <div id="scanStatus" data-testid="scan-status" class="scan-status"></div>
+            </div>
+
+            <div class="results-panel">
+                <h3><i class="fas fa-clipboard-check"></i> Recognition Results</h3>
+                <div id="recognitionResult" data-testid="recognition-result" class="recognition-result">
+                    <p>Waiting for scan...</p>
+                </div>
+
+                <div class="recent-attendance">
+                    <h3><i class="fas fa-history"></i> Recent Attendance</h3>
+                    <div id="recentList" data-testid="recent-attendance-list">Loading...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="alert success" id="alert" data-testid="attendance-alert"></div>
+
+    <script>
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let scanning = false;
+        let blinkCount = 0;
+        let headMovement = false;
+        let previousFrame = null;
+        let scanInterval;
+
+        // Get recent attendance on load
+        loadRecentAttendance();
+
+        document.getElementById('startScan').addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                scanning = true;
+                blinkCount = 0;
+                headMovement = false;
+                
+                document.getElementById('startScan').disabled = true;
+                document.getElementById('stopScan').disabled = false;
+                document.getElementById('scanOverlay').style.display = 'block';
+                
+                // Start continuous scanning
+                scanInterval = setInterval(scanFrame, 1000);
+                
+                showAlert('Scanning started. Please look at the camera and blink naturally.', 'info');
+            } catch (err) {
+                showAlert('Error accessing camera: ' + err.message, 'error');
+            }
+        });
+
+        document.getElementById('stopScan').addEventListener('click', () => {
+            stopScanning();
+        });
+
+        function stopScanning() {
+            scanning = false;
+            if (scanInterval) clearInterval(scanInterval);
+            
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            document.getElementById('startScan').disabled = false;
+            document.getElementById('stopScan').disabled = true;
+            document.getElementById('scanOverlay').style.display = 'none';
+        }
+
+        async function scanFrame() {
+            if (!scanning) return;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            const frameData = canvas.toDataURL('image/jpeg');
+            
+            // Simple blink simulation (in real implementation, use eye detection)
+            // For demo: increment blink count randomly
+            if (Math.random() > 0.7 && blinkCount < 3) {
+                blinkCount++;
+                document.getElementById('blinkCount').textContent = blinkCount;
+                document.getElementById('blinkCheck').classList.add('check-success');
+            }
+            
+            // Simple head movement detection (check if frame changed significantly)
+            if (previousFrame && blinkCount >= 1) {
+                headMovement = true;
+                document.getElementById('headStatus').textContent = 'Detected';
+                document.getElementById('headCheck').classList.add('check-success');
+            }
+            previousFrame = frameData;
+            
+            // If liveness checks passed, try recognition
+            if (blinkCount >= 2 && headMovement) {
+                try {
+                    const response = await fetch('/api/recognize_face', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            frame: frameData,
+                            blink_count: blinkCount,
+                            head_movement: headMovement
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        document.getElementById('recognitionResult').innerHTML = `
+                            <div class="success-result">
+                                <i class="fas fa-check-circle"></i>
+                                <h3>${result.name}</h3>
+                                <p><strong>Emotion:</strong> ${result.emotion}</p>
+                                <p><strong>Time:</strong> ${result.time}</p>
+                            </div>
+                        `;
+                        showAlert(`✅ ${result.message}`, 'success');
+                        stopScanning();
+                        loadRecentAttendance();
+                    } else {
+                        document.getElementById('scanStatus').innerHTML = `
+                            <div class="warning-message">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                ${result.message}
+                            </div>
+                        `;
+                    }
+                } catch (err) {
+                    console.error('Recognition error:', err);
+                }
+            }
+        }
+
+        async function loadRecentAttendance() {
+            try {
+                const response = await fetch('/api/get_analytics');
+                const data = await response.json();
+                
+                if (data.success && data.records) {
+                    const recentHTML = data.records.slice(0, 10).map(record => `
+                        <div class="attendance-item">
+                            <span class="name">${record.Name}</span>
+                            <span class="emotion">${record.Emotion}</span>
+                            <span class="time">${record.Time}</span>
+                        </div>
+                    `).join('');
+                    document.getElementById('recentList').innerHTML = recentHTML || '<p>No recent attendance</p>';
+                } else {
+                    document.getElementById('recentList').innerHTML = '<p>No attendance records</p>';
+                }
+            } catch (err) {
+                document.getElementById('recentList').innerHTML = '<p>Error loading data</p>';
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

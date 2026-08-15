@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+dataset/
+encodings.pkl
+attendence.csv
+attendance.csv
+venv/
+env/
+.env
+attendence.csv.csv
+reports/

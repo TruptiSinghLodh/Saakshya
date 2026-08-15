@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Smart Classroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn" data-testid="back-home-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h1><i class="fas fa-chart-line"></i> Analytics Dashboard</h1>
+            <p>Advanced attendance analytics and insights</p>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card" data-testid="total-students-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalStudents" data-testid="total-students">0</h3>
+                        <p>Total Students</p>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-testid="present-today-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #a8edea 0%, #5eead4 100%);">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="presentToday" data-testid="present-today">0</h3>
+                        <p>Present Today</p>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-testid="attendance-percentage-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #84fab0 0%, #50c9c3 100%);">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="attendancePercentage" data-testid="attendance-percentage">0%</h3>
+                        <p>Attendance Rate</p>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-testid="late-entries-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="lateCount" data-testid="late-count">0</h3>
+                        <p>Late Entries</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-area"></i> Weekly Attendance Trend</h3>
+                    <canvas id="weeklyChart" data-testid="weekly-chart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3><i class="fas fa-user-times"></i> Most Absent Students</h3>
+                    <div id="absentList" data-testid="absent-students-list" class="absent-list">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Late Entries & Reports -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3><i class="fas fa-clock"></i> Late Entries Today</h3>
+                    <div id="lateList" data-testid="late-entries-list" class="late-list">Loading...</div>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-bell"></i> Recent Alerts</h3>
+                    <div id="alertsList" data-testid="alerts-list" class="alerts-list">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Recent Attendance Records</h3>
+                    <button id="generateReport" data-testid="generate-report-btn" class="btn btn-accent">
+                        <i class="fas fa-file-download"></i> Generate Report
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="attendanceTable" data-testid="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Emotion</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="5">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="alert" id="alert" data-testid="dashboard-alert"></div>
+
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</body>
+</html>

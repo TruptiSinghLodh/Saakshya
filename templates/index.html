@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Classroom Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <div class="hero-content">
+                <i class="fas fa-brain hero-icon"></i>
+                <h1 class="hero-title">Smart Classroom</h1>
+                <p class="hero-subtitle">Face Recognition Attendance System</p>
+                <p class="hero-description">AI-Powered attendance with emotion detection and anti-spoofing</p>
+            </div>
+        </header>
+
+        <main class="nav-grid">
+            <a href="/register" class="nav-card" data-testid="register-nav-link">
+                <div class="nav-card-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3>Register Student</h3>
+                <p>Add new students to the system with facial recognition</p>
+            </a>
+
+            <a href="/scan" class="nav-card" data-testid="scan-nav-link">
+                <div class="nav-card-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3>Mark Attendance</h3>
+                <p>Scan student faces to mark attendance automatically</p>
+            </a>
+
+            <a href="/dashboard" class="nav-card" data-testid="dashboard-nav-link">
+                <div class="nav-card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Analytics Dashboard</h3>
+                <p>View attendance records and advanced analytics</p>
+            </a>
+        </main>
+
+        <footer class="footer">
+            <p>Powered by AI Face Recognition • Liveness Detection • Emotion Analysis</p>
+        </footer>
+    </div>
+</body>
+</html>
